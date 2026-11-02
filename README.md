@@ -6,7 +6,7 @@
 
 | Skill | 分类 | 用途 | 已验证范围 |
 | --- | --- | --- | --- |
-| [conan2-cmake](skills/conan2-cmake/SKILL.md) | C/C++ | Conan 2 依赖管理、CMake presets、容器环境与排错 | Ubuntu 24.04.4 / Linux armv8 profile，fmt 12.2.0 模板在现有缓存下配置、编译、运行通过 |
+| [conan2-cmake](skills/conan2-cmake/SKILL.md) | C/C++ | Conan 2 依赖管理、CMake presets、fmt 与 Google Benchmark 模板、容器排错 | Ubuntu 24.04.4 / Linux armv8 profile，具体版本和范围见各模板说明 |
 
 详细版本和验证边界见各 skill 的参考文件；索引不代表所有平台或全新安装均经过验证。
 
@@ -61,7 +61,27 @@ cmake --build --preset conan-debug --parallel
 
 以上运行命令对应 Ubuntu 的默认单配置生成器。预期输出：`Hello, Conan! Answer = 42`。依赖缓存位于当前用户的 Conan home；生成的 presets 与构建产物不提交。
 
-GitHub Actions 定义了格式检查与 Ubuntu fmt 构建任务。远程仓库建立后，以实际 Actions 运行结果为准。
+## Google Benchmark 模板验证
+
+独立的 [benchmark-demo](skills/conan2-cmake/assets/benchmark-demo/) 通过 Conan 安装 `benchmark/1.10.0`，使用 CMake 的 `benchmark::benchmark_main` 目标，对比 vector 逐步扩容和预先 reserve 的写法。
+
+以下命令同样在目标构建环境执行，benchmark 使用 Release 配置：
+
+```bash
+cd skills/conan2-cmake/assets/benchmark-demo
+conan profile detect --exist-ok
+conan install . -s:h build_type=Release -s:h compiler.cppstd=17 --build=missing
+cmake --preset conan-release
+cmake --build --preset conan-release --parallel
+ctest --test-dir build/Release --output-on-failure
+./build/Release/vector_append_benchmark --benchmark_min_time=0.1s
+```
+
+两个实现各测 64、4096 个元素，共四组用例。CTest 的短 smoke test 只确认程序和用例能运行，并生成 `build/Release/benchmark-smoke.json`；不以时间大小或谁更快作为通过条件。
+
+测量范围、JSON 导出和结果解读见 [Benchmark 说明](skills/conan2-cmake/references/benchmark.md)。容器内的示例数字不能直接当作稳定硬件上的性能结论。
+
+GitHub Actions 包含格式检查、fmt Debug 构建和 Google Benchmark Release smoke test。远程状态以实际 Actions 运行结果为准。
 
 ## 扩展与贡献
 

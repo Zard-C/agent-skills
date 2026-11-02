@@ -1,6 +1,6 @@
 ---
 name: conan2-cmake
-description: Set up and troubleshoot Conan 2 dependencies consumed by CMake in C/C++ projects, including conanfile.py, profiles, fmt examples, generated presets, and Ubuntu development containers on macOS. Use for Conan 2 installation, CMake dependency integration, or missing conan-debug presets; preserve existing package-manager choices.
+description: Set up and troubleshoot Conan 2 dependencies consumed by CMake in C/C++ projects, including conanfile.py, profiles, fmt and Google Benchmark examples, generated presets, and Ubuntu development containers on macOS. Use for Conan 2 installation, CMake dependency integration, or missing Conan presets; preserve existing package-manager choices.
 ---
 
 # Conan 2 + CMake
@@ -20,6 +20,7 @@ description: Set up and troubleshoot Conan 2 dependencies consumed by CMake in C
 - 配置、依赖、preset 或链接错误：读取 [references/troubleshooting.md](references/troubleshooting.md)。
 - 用户询问现成 skills 或后续扩展：读取 [references/community-skills.md](references/community-skills.md)，重新核实源码可访问性。
 - 新建最小可运行项目：使用 [assets/fmt-demo](assets/fmt-demo/) 的三个文件；复制前检查目标目录已有文件，按项目结构调整。
+- 接入 Google Benchmark 或创建微基准：读取 [references/benchmark.md](references/benchmark.md)，使用独立的 [assets/benchmark-demo](assets/benchmark-demo/) 模板。
 
 ## 接入方式
 
@@ -28,6 +29,7 @@ description: Set up and troubleshoot Conan 2 dependencies consumed by CMake in C
 - fmt 示例固定使用 `fmt/12.2.0`；这是示例选择，不代表最新版本。新增或升级依赖前核实 ConanCenter/项目 remote 上的配方，并确认目标 CMake 名称。
 - CMake 使用 `find_package(fmt CONFIG REQUIRED)` 和 `target_link_libraries(hello PRIVATE fmt::fmt)`；头文件路径、传递依赖和库文件由 imported target 提供。
 - fmt 用于 C++ 源码；`project(... LANGUAGES CXX)` 中的关键字带 `S`。系统线程仍使用 `Threads::Threads`，无需把 libc 或 pthread 改造成 Conan 依赖。
+- Google Benchmark 示例使用 `benchmark/1.10.0`、C++17 和 Release 配置，链接 `benchmark::benchmark_main` 提供入口；此时不要再定义自己的 `main()` 或 `BENCHMARK_MAIN()`。
 - 在容器内检测并使用 Linux profile。Mac 和 Linux 的构建目录分开；不要将宿主机生成的 CMake 缓存或 Conan 绝对路径直接用于容器。
 
 ## 安装和编译
@@ -53,6 +55,7 @@ cmake --build --preset conan-debug --parallel
 - 确认 Conan 安装成功，profile 的 OS、架构、编译器和 C++ 标准符合目标环境。
 - 确认项目根目录有可用的 preset 入口，`cmake --list-presets` 能列出所选配置。
 - 配置、编译并运行最小模板；期望输出 `Hello, Conan! Answer = 42`。已有项目使用其实际测试与运行方式。
+- Benchmark 模板注册四组 vector append 用例，运行其 CTest smoke test 并检查结果。smoke test 验证功能，不根据短测量时间设定性能阈值；性能结果同时报告构建模式、输入规模、硬件和测量环境。
 - 报告实际测试的系统、版本和生成器；若只核对了文件或文档，明确说明尚未完成安装/运行验证。
 - 保留用户已有 profiles 和手写 presets。按错误定位处理，避免默认覆盖 profile、清空整个 Conan cache 或切换依赖来源。
 - 复现环境时记录实际 Conan 版本；团队/CI 进一步固定依赖 revisions、profiles 和锁文件，版本号声明本身不等于完整可复现性。
@@ -63,3 +66,4 @@ cmake --build --preset conan-debug --parallel
 - [conanfile.py 与 conanfile.txt](https://docs.conan.io/2/tutorial/consuming_packages/the_flexibility_of_conanfile_py.html)
 - [CMakeToolchain 与 preset 生成条件](https://docs.conan.io/2/reference/tools/cmake/cmaketoolchain.html)
 - [fmt 的 CMake 目标](https://fmt.dev/latest/get-started/)
+- [Google Benchmark 使用说明](https://github.com/google/benchmark/blob/v1.10.0/docs/user_guide.md)

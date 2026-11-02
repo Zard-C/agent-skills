@@ -49,3 +49,29 @@ jobs:
           cmake --build --preset conan-debug --parallel
       - name: Run fmt example
         run: test "$(./build/Debug/hello)" = "Hello, Conan! Answer = 42"
+
+  benchmark-smoke:
+    needs: validate
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: skills/conan2-cmake/assets/benchmark-demo
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Install Conan
+        run: python -m pip install "conan==2.34.0"
+      - name: Prepare profile and dependencies
+        run: |
+          conan profile detect --exist-ok
+          conan profile show
+          conan install . -s:h build_type=Release -s:h compiler.cppstd=17 --build=missing
+      - name: Configure and build
+        run: |
+          cmake --list-presets
+          cmake --preset conan-release
+          cmake --build --preset conan-release --parallel
+      - name: Run benchmark smoke test
+        run: ctest --test-dir build/Release --output-on-failure

@@ -1,4 +1,4 @@
 interface:
   display_name: "Conan 2 + CMake"
   short_description: "Set up Conan 2 dependencies and CMake builds"
-  default_prompt: "Use $conan2-cmake to set up Conan 2 and CMake for my C++ project and verify a fmt example."
+  default_prompt: "Use $conan2-cmake to set up Conan 2 and CMake for my C++ project and verify a fmt or Google Benchmark example."

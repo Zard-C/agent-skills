@@ -112,6 +112,8 @@ export NO_PROXY="$no_proxy"
 
 安装验证使用主流程的参数并额外加了 `--no-remote`，成功复用已有 fmt 12.2.0 缓存；`cmake --list-presets`、配置、编译、运行全部通过，输出为 `Hello, Conan! Answer = 42`。这证明了当前容器中的依赖消费链路，未重新验证空缓存下载、全新系统安装、其他平台或交叉编译。
 
+Google Benchmark 的独立 Release 模板及其实际验证记录见 [Benchmark 说明](benchmark.md#本次验证范围)。
+
 ## 官方参考
 
 - [Conan 安装与 pipx](https://docs.conan.io/2/installation.html)
